@@ -41,7 +41,8 @@ public class MainActivity extends BaseActivity {
                         .setTheme(R.style.LoginTheme)
                         .setAvailableProviders(Arrays.asList(
                                 new IdpConfig.EmailBuilder().build(),
-                                new IdpConfig.GoogleBuilder().build()
+                                new IdpConfig.GoogleBuilder().build(),
+                                new IdpConfig.FacebookBuilder().build()
                         ))
                         .setIsSmartLockEnabled(false, true)
                         .setLogo(R.drawable.ic_logo_auth)
