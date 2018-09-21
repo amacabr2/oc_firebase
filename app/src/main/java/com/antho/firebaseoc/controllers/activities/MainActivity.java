@@ -5,16 +5,17 @@ import android.os.Bundle;
 
 import com.antho.firebaseoc.R;
 
+import butterknife.OnClick;
+
 public class MainActivity extends BaseActivity {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-    }
+    private static final int RC_SIGN_IN = 123;
 
     @Override
     public int getFragmentLayout() {
         return 0;
     }
+
+
+
 }
