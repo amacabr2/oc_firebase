@@ -39,7 +39,10 @@ public class MainActivity extends BaseActivity {
                 getInstance()
                         .createSignInIntentBuilder()
                         .setTheme(R.style.LoginTheme)
-                        .setAvailableProviders(Arrays.asList((new IdpConfig.EmailBuilder()).build()))
+                        .setAvailableProviders(Arrays.asList(
+                                new IdpConfig.EmailBuilder().build(),
+                                new IdpConfig.GoogleBuilder().build()
+                        ))
                         .setIsSmartLockEnabled(false, true)
                         .setLogo(R.drawable.ic_logo_auth)
                         .build(),
