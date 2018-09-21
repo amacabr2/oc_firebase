@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">FirebaseOC</string>
 
     <string name="main_activity_description">Discute avec tes mentors, tout simplement.</string>
@@ -42,7 +42,7 @@
     <string name="toast_title_no_image_chosen">Aucune image choisie&#8230;</string>
 
     <!-- FACEBOOK PURPOSE -->
-    <string name="facebook_app_id">310892729643465</string>
-    <string name="fb_login_protocol_scheme">fb310892729643465</string>
+    <string name="facebook_application_id" translatable="false">310892729643465</string>
+    <string name="fb_login_protocol_scheme" translatable="false"  tools:ignore="UnusedResources">fb310892729643465</string>
 
 </resources>
