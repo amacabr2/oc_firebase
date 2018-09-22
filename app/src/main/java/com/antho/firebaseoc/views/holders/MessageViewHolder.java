@@ -72,7 +72,7 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
         }
 
         // Update isMentor ImageView
-        this.imageViewIsMentor.setVisibility(message.getUserSender().isMentor() ? View.VISIBLE : View.INVISIBLE);
+        this.imageViewIsMentor.setVisibility(message.getUserSender().getIsMentor() ? View.VISIBLE : View.INVISIBLE);
 
         // Update profile picture ImageView
         if (message.getUserSender().getUrlPicture() != null)

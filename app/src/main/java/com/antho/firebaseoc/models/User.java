@@ -35,7 +35,7 @@ public class User {
         this.username = username;
     }
 
-    public boolean isMentor() {
+    public boolean getIsMentor() {
         return isMentor;
     }
 
