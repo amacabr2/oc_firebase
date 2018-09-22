@@ -1,6 +1,9 @@
 package com.antho.firebaseoc.controllers.activities;
 
 import android.Manifest;
+import android.content.Intent;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
@@ -22,6 +25,7 @@ import com.antho.firebaseoc.models.Message;
 import com.antho.firebaseoc.models.User;
 import com.antho.firebaseoc.views.adapters.MentorChatAdapter;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -50,12 +54,14 @@ public class MentorChatActivity extends BaseActivity implements MentorChatAdapte
     @Nullable
     private User modelCurrentUser;
     private String currentChatName;
+    private Uri uriImageSelected;
 
     private static final String CHAT_NAME_ANDROID = "android";
     private static final String CHAT_NAME_BUG = "bug";
     private static final String CHAT_NAME_FIREBASE = "firebase";
     private static final String PERMS = Manifest.permission.READ_EXTERNAL_STORAGE;
     private static final int RC_IMAGE_PERMS = 100;
+    private static final int RC_CHOOSE_PHOTO = 200;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +69,12 @@ public class MentorChatActivity extends BaseActivity implements MentorChatAdapte
         this.configureRecyclerView(CHAT_NAME_ANDROID);
         this.configureToolbar();
         this.getCurrentUserFromFirestore();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        this.handleResponse(requestCode, resultCode, data);
     }
 
     @Override
@@ -108,11 +120,7 @@ public class MentorChatActivity extends BaseActivity implements MentorChatAdapte
     @OnClick(R.id.activity_mentor_chat_add_file_button)
     @AfterPermissionGranted(RC_IMAGE_PERMS)
     public void onClickAddFile() {
-        if (!EasyPermissions.hasPermissions(this, PERMS)) {
-            EasyPermissions.requestPermissions(this, getString(R.string.popup_title_permission_files_access), RC_IMAGE_PERMS, PERMS);
-            return;
-        }
-        makeText(this, "Vous avez le droit d'accéder aux images !", LENGTH_SHORT).show();
+        this.chooseImageFromPhone();
     }
 
     // --------------------
@@ -150,6 +158,34 @@ public class MentorChatActivity extends BaseActivity implements MentorChatAdapte
                 .setQuery(query, Message.class)
                 .setLifecycleOwner(this)
                 .build();
+    }
+
+    // --------------------
+    // FILE MANAGEMENT
+    // --------------------
+
+    private void chooseImageFromPhone(){
+        if (!EasyPermissions.hasPermissions(this, PERMS)) {
+            EasyPermissions.requestPermissions(this, getString(R.string.popup_title_permission_files_access), RC_IMAGE_PERMS, PERMS);
+            return;
+        }
+
+        Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(i, RC_CHOOSE_PHOTO);
+    }
+
+    private void handleResponse(int requestCode, int resultCode, Intent data){
+        if (requestCode == RC_CHOOSE_PHOTO) {
+            if (resultCode == RESULT_OK) {
+                this.uriImageSelected = data.getData();
+                Glide.with(this)
+                        .load(this.uriImageSelected)
+                        .apply(RequestOptions.circleCropTransform())
+                        .into(this.imageViewPreview);
+            } else {
+                Toast.makeText(this, getString(R.string.toast_title_no_image_chosen), Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     // --------------------
