@@ -6,18 +6,25 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.View;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.antho.firebaseoc.R;
+import com.antho.firebaseoc.api.UserRequest;
+import com.antho.firebaseoc.models.User;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import butterknife.BindView;
 import butterknife.OnClick;
+
+import static android.view.View.*;
 
 public class ProfileActivity extends BaseActivity {
 
@@ -29,9 +36,12 @@ public class ProfileActivity extends BaseActivity {
     TextView textViewEmail;
     @BindView(R.id.profile_activity_progress_bar)
     ProgressBar progressBar;
+    @BindView(R.id.profile_activity_check_box_is_mentor)
+    CheckBox checkBoxIsMentor;
 
     private static final int SIGN_OUT_TASK = 10;
     private static final int DELETE_USER_TASK = 20;
+    private static final int UPDATE_USERNAME = 30;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +61,12 @@ public class ProfileActivity extends BaseActivity {
 
     @OnClick(R.id.profile_activity_button_update)
     public void onClickUpdateButton() {
+        this.updateUsernameInFirebase();
+    }
 
+    @OnClick(R.id.profile_activity_check_box_is_mentor)
+    public void onClickCheckBoxIsMentor() {
+        this.updateUserIsMentorInFirebase();
     }
 
     @OnClick(R.id.profile_activity_button_sign_out)
@@ -87,10 +102,19 @@ public class ProfileActivity extends BaseActivity {
             }
 
             String email = TextUtils.isEmpty(this.getCurrentUser().getEmail()) ? getString(R.string.info_no_email_found) : this.getCurrentUser().getEmail();
-            String username = TextUtils.isEmpty(this.getCurrentUser().getDisplayName()) ? getString(R.string.info_no_username_found) : this.getCurrentUser().getDisplayName();
-
-            this.textInputEditTextUsername.setText(username);
             this.textViewEmail.setText(email);
+
+            UserRequest
+                    .getUser(this.getCurrentUser().getUid())
+                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            User currentUser = documentSnapshot.toObject(User.class);
+                            String username = TextUtils.isEmpty(currentUser.getUsername())  ? getString(R.string.info_no_username_found) : currentUser.getUsername();
+                            checkBoxIsMentor.setChecked(currentUser.isMentor());
+                            textInputEditTextUsername.setText(username);
+                        }
+                    });
         }
     }
 
@@ -104,6 +128,9 @@ public class ProfileActivity extends BaseActivity {
                         break;
                     case DELETE_USER_TASK:
                         finish();
+                        break;
+                    case UPDATE_USERNAME:
+                        progressBar.setVisibility(INVISIBLE);
                         break;
                     default:
                         break;
@@ -124,9 +151,35 @@ public class ProfileActivity extends BaseActivity {
 
     private void deleteUserFromFirebase(){
         if (this.getCurrentUser() != null) {
+            UserRequest
+                    .deleteUser(this.getCurrentUser().getUid())
+                    .addOnFailureListener(this.onFailureListener());
+
             AuthUI.getInstance()
                     .delete(this)
                     .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted(DELETE_USER_TASK));
+        }
+    }
+
+    private void updateUsernameInFirebase() {
+        this.progressBar.setVisibility(VISIBLE);
+        String username = this.textInputEditTextUsername.getText().toString();
+
+        if (this.getCurrentUser() != null){
+            if (!username.isEmpty() &&  !username.equals(getString(R.string.info_no_username_found))){
+                UserRequest
+                        .updateUsername(username, this.getCurrentUser().getUid())
+                        .addOnFailureListener(this.onFailureListener())
+                        .addOnSuccessListener(this.updateUIAfterRESTRequestsCompleted(UPDATE_USERNAME));
+            }
+        }
+    }
+
+    private void updateUserIsMentorInFirebase() {
+        if (this.getCurrentUser() != null) {
+            UserRequest
+                    .updateIsMentor(this.getCurrentUser().getUid(), this.checkBoxIsMentor.isChecked())
+                    .addOnFailureListener(this.onFailureListener());
         }
     }
 }

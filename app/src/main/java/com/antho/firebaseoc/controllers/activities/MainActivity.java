@@ -7,6 +7,7 @@ import android.support.design.widget.Snackbar;
 import android.widget.Button;
 
 import com.antho.firebaseoc.R;
+import com.antho.firebaseoc.api.UserRequest;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
 
@@ -93,6 +94,7 @@ public class MainActivity extends BaseActivity {
 
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) { // SUCCESS
+                this.createUserInFirestore();
                 showSnackBar(this.coordinatorLayout, getString(R.string.connection_succeed));
             } else { // ERRORS
                 if (response == null) {
@@ -103,6 +105,20 @@ public class MainActivity extends BaseActivity {
                     showSnackBar(this.coordinatorLayout, getString(R.string.error_unknown_error));
                 }
             }
+        }
+    }
+
+    // --------------------
+    // REST REQUESTS
+    // --------------------
+
+    private void createUserInFirestore(){
+        if (this.getCurrentUser() != null){
+            String urlPicture = (this.getCurrentUser().getPhotoUrl() != null) ? this.getCurrentUser().getPhotoUrl().toString() : null;
+            String username = this.getCurrentUser().getDisplayName();
+            String uid = this.getCurrentUser().getUid();
+
+            UserRequest.createUser(uid, username, urlPicture).addOnFailureListener(this.onFailureListener());
         }
     }
 }
