@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -67,7 +68,12 @@ public class MentorChatActivity extends BaseActivity implements MentorChatAdapte
 
     @OnClick(R.id.activity_mentor_chat_send_button)
     public void onClickSendMessage() {
-
+        if (!TextUtils.isEmpty(editTextMessage.getText()) && modelCurrentUser != null){
+            MessageRequest
+                    .createMessageForChat(editTextMessage.getText().toString(), this.currentChatName, modelCurrentUser)
+                    .addOnFailureListener(this.onFailureListener());
+            this.editTextMessage.setText("");
+        }
     }
 
     @OnClick({ R.id.activity_mentor_chat_android_chat_button, R.id.activity_mentor_chat_firebase_chat_button, R.id.activity_mentor_chat_bug_chat_button})
