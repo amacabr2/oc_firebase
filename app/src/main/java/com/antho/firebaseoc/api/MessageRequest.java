@@ -26,4 +26,13 @@ public class MessageRequest {
                 .collection(COLLECTION_NAME)
                 .add(message);
     }
+
+    public static Task<DocumentReference> createMessageWithImageForChat(String urlImage, String textMessage, String chat, User userSender){
+        Message message = new Message(textMessage, userSender, urlImage);
+
+        return ChatRequest.getChatCollection()
+                .document(chat)
+                .collection(COLLECTION_NAME)
+                .add(message);
+    }
 }

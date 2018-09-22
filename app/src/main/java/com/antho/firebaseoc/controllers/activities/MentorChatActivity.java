@@ -30,6 +30,11 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -95,10 +100,14 @@ public class MentorChatActivity extends BaseActivity implements MentorChatAdapte
     @OnClick(R.id.activity_mentor_chat_send_button)
     public void onClickSendMessage() {
         if (!TextUtils.isEmpty(editTextMessage.getText()) && modelCurrentUser != null){
-            MessageRequest
-                    .createMessageForChat(editTextMessage.getText().toString(), this.currentChatName, modelCurrentUser)
-                    .addOnFailureListener(this.onFailureListener());
-            this.editTextMessage.setText("");
+            if (this.imageViewPreview.getDrawable() == null) {
+                MessageRequest.createMessageForChat(editTextMessage.getText().toString(), this.currentChatName, modelCurrentUser).addOnFailureListener(this.onFailureListener());
+                this.editTextMessage.setText("");
+            } else {
+                this.uploadPhotoInFirebaseAndSendMessage(editTextMessage.getText().toString());
+                this.editTextMessage.setText("");
+                this.imageViewPreview.setImageDrawable(null);
+            }
         }
     }
 
@@ -134,6 +143,21 @@ public class MentorChatActivity extends BaseActivity implements MentorChatAdapte
                 modelCurrentUser = documentSnapshot.toObject(User.class);
             }
         });
+    }
+
+    private void uploadPhotoInFirebaseAndSendMessage(final String message) {
+        String uuid = UUID.randomUUID().toString();
+        StorageReference imageRef = FirebaseStorage.getInstance().getReference(uuid);
+
+        imageRef.putFile(this.uriImageSelected)
+                .addOnSuccessListener(this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        String pathImageSavedInFirebase = taskSnapshot.getMetadata().getDownloadUrl().toString();
+                        MessageRequest.createMessageWithImageForChat(pathImageSavedInFirebase, message, currentChatName, modelCurrentUser).addOnFailureListener(onFailureListener());
+                    }
+                })
+                .addOnFailureListener(this.onFailureListener());
     }
 
     // --------------------
