@@ -29,8 +29,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".controllers.activities.ProfileActivity"/>
+        <activity android:name=".controllers.activities.ProfileActivity" />
+        <activity android:name=".controllers.activities.MentorChatActivity"></activity>
     </application>
 
 </manifest>
