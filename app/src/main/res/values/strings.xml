@@ -43,6 +43,6 @@
 
     <!-- FACEBOOK PURPOSE -->
     <string name="facebook_application_id" translatable="false">310892729643465</string>
-    <string name="fb_login_protocol_scheme" translatable="false"  tools:ignore="UnusedResources">fb310892729643465</string>
+    <string name="fb_login_protocol_scheme" translatable="false" tools:ignore="UnusedResources">fb310892729643465</string>
 
 </resources>

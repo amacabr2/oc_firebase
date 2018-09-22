@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.antho.firebaseoc">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -12,7 +12,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <meta-data tools:replace="android:value" android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_application_id"/>
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_application_id"
+            tools:replace="android:value" />
 
         <activity android:name=".controllers.activities.MainActivity">
             <intent-filter>
@@ -23,8 +26,11 @@
         </activity>
 
         <provider
-            android:authorities="com.facebook.app.FacebookContentProvider310892729643465"
             android:name="com.facebook.FacebookContentProvider"
+            android:authorities="com.facebook.app.FacebookContentProvider310892729643465"
             android:exported="true" />
+
+        <activity android:name=".controllers.activities.ProfileActivity"></activity>
     </application>
+
 </manifest>
