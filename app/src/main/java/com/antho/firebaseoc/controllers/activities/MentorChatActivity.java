@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -27,7 +28,10 @@ import com.antho.firebaseoc.views.adapters.MentorChatAdapter;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
@@ -147,13 +151,23 @@ public class MentorChatActivity extends BaseActivity implements MentorChatAdapte
 
     private void uploadPhotoInFirebaseAndSendMessage(final String message) {
         String uuid = UUID.randomUUID().toString();
-        StorageReference imageRef = FirebaseStorage.getInstance().getReference(uuid);
+        final StorageReference imageRef = FirebaseStorage.getInstance().getReference(uuid);
 
         imageRef.putFile(this.uriImageSelected)
-                .addOnSuccessListener(this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                .continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
                     @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        String pathImageSavedInFirebase = taskSnapshot.getMetadata().getDownloadUrl().toString();
+                    public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                        if (!task.isSuccessful()) {
+                            throw task.getException();
+                        }
+
+                        return imageRef.getDownloadUrl();
+                    }
+                })
+                .addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Uri> task) {
+                        String pathImageSavedInFirebase = task.getResult().toString();
                         MessageRequest.createMessageWithImageForChat(pathImageSavedInFirebase, message, currentChatName, modelCurrentUser).addOnFailureListener(onFailureListener());
                     }
                 })
