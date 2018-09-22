@@ -53,7 +53,21 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    public void startSignInActivity() {
+    @OnClick(R.id.main_activity_button_chat)
+    public void onClickChatButton() {
+        // 2 - Check if user is connected before launching MentorActivity
+        if (this.isCurrentUserLogged()){
+            this.startMentorChatActivity();
+        } else {
+            this.showSnackBar(this.coordinatorLayout, getString(R.string.error_not_connected));
+        }
+    }
+
+    // --------------------
+    // NAVIGATION
+    // --------------------
+
+    private void startSignInActivity() {
         startActivityForResult(
                 getInstance()
                         .createSignInIntentBuilder()
@@ -70,8 +84,13 @@ public class MainActivity extends BaseActivity {
         );
     }
 
-    public void startProfileActivity() {
+    private void startProfileActivity() {
         Intent intent = new Intent(this, ProfileActivity.class);
+        startActivity(intent);
+    }
+
+    private void startMentorChatActivity() {
+        Intent intent = new Intent(this, MentorChatActivity.class);
         startActivity(intent);
     }
 

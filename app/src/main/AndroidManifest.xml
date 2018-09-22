@@ -30,7 +30,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".controllers.activities.ProfileActivity" />
-        <activity android:name=".controllers.activities.MentorChatActivity"></activity>
+        <activity android:name=".controllers.activities.MentorChatActivity"/>
     </application>
 
 </manifest>
