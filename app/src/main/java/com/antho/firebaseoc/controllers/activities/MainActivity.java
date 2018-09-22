@@ -4,6 +4,7 @@ import android.content.Intent;
 
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.widget.Button;
 
 import com.antho.firebaseoc.R;
 import com.firebase.ui.auth.ErrorCodes;
@@ -24,14 +25,31 @@ public class MainActivity extends BaseActivity {
     @BindView(R.id.main_activity_coordinator_layout)
     CoordinatorLayout coordinatorLayout;
 
+    @BindView(R.id.main_activity_button_login)
+    Button buttonLogin;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        this.updateUIWhenResuming();
+    }
+
     @Override
     public int getFragmentLayout() {
         return R.layout.activity_main;
     }
 
+    // --------------------
+    // ACTIONS
+    // --------------------
+
     @OnClick(R.id.main_activity_button_login)
     public void onClickLoginButton() {
-        this.startSignInActivity();
+        if (this.isCurrentUserLogged()) {
+            this.startProfileActivity();
+        } else {
+            this.startSignInActivity();
+        }
     }
 
     public void startSignInActivity() {
@@ -51,6 +69,11 @@ public class MainActivity extends BaseActivity {
         );
     }
 
+    public void startProfileActivity() {
+        Intent intent = new Intent(this, ProfileActivity.class);
+        startActivity(intent);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -59,6 +82,10 @@ public class MainActivity extends BaseActivity {
 
     private void showSnackBar(CoordinatorLayout coordinatorLayout, String message) {
         Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_SHORT).show();
+    }
+
+    private void updateUIWhenResuming() {
+        this.buttonLogin.setText(this.isCurrentUserLogged() ? getString(R.string.button_login_text_logged) : getString(R.string.button_login_text_not_logged));
     }
 
     private void handleResponseAfterSignIn(int requestCode, int resultCode, Intent data) {
